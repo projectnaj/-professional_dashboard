@@ -984,6 +984,22 @@
 
             /* Slightly tighter content padding on mobile */
             .content { padding: 1rem !important; }
+
+            /* Keep header pinned like desktop on phones */
+            .header {
+                position: fixed;
+                top: env(safe-area-inset-top, 0);
+                left: 0;
+                right: 0;
+                width: 100%;
+                z-index: 1100; /* ensure above sidebar/backdrop */
+            }
+
+            /* Add space under fixed header so content doesn't slide under it */
+            [dir="rtl"] .main-content,
+            [dir="ltr"] .main-content {
+                padding-top: calc(64px + 1rem) !important; /* header height + spacing */
+            }
         }
     </style>
 </head>

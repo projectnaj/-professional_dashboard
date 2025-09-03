@@ -2,7 +2,7 @@
 <html :lang="currentLanguage" :dir="currentLanguage === 'ar' ? 'rtl' : 'ltr'">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title x-text="translations[currentLanguage].title">لوحة تحكم البيانات الاحترافية - SABIC</title>
 
     <!-- External Libraries -->
@@ -670,15 +670,24 @@
             color: #1E40AF;
         }
 
+        /* Mobile overlay for sidebar */
+        .mobile-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 900; }
+
+        /* Tablet & down: make content full width and sidebar overlay */
+        @media (max-width: 1024px) {
+            [dir="rtl"] .main-content, [dir="ltr"] .main-content { margin: 0 !important; }
+            .main-content { padding: 1rem; }
+            .sidebar { width: min(90vw, 320px); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
-                transform: translateX(100%);
+                width: min(90vw, 320px);
             }
 
             .main-content {
-                margin-right: 0;
+                margin: 0 !important;
             }
 
             .kpi-grid {
@@ -953,6 +962,11 @@
             .export-section {
                 flex-direction: column;
                 gap: 0.75rem;
+    <!-- Mobile backdrop -->
+    <template x-if="!sidebarOpen">
+        <div class="mobile-backdrop" @click="sidebarOpen = true"></div>
+    </template>
+
             }
 
             .export-section .btn {
@@ -1007,6 +1021,9 @@
             <!-- Emails -->
             <a class="nav-item" :class="{ 'active': currentView === 'email' }" @click="setView('email')">
                 <i class="fas fa-envelope"></i>
+        <!-- Backdrop for mobile when sidebar is open -->
+        <div x-show="sidebarOpen && isMobile()" class="mobile-backdrop" @click="sidebarOpen = false"></div>
+
                 <span x-text="translations[currentLanguage].nav.email"></span>
             </a>
 

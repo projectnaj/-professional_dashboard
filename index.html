@@ -264,7 +264,7 @@
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1100; /* keep header above sidebar */
         }
 
         .header-title {
@@ -962,11 +962,6 @@
             .export-section {
                 flex-direction: column;
                 gap: 0.75rem;
-    <!-- Mobile backdrop -->
-    <template x-if="!sidebarOpen">
-        <div class="mobile-backdrop" @click="sidebarOpen = true"></div>
-    </template>
-
             }
 
             .export-section .btn {
@@ -974,10 +969,26 @@
                 justify-content: center;
             }
         }
+        /* === Mobile fixes (force no sidebar margin) === */
+        @media (max-width: 768px) {
+            [dir="rtl"] .main-content,
+            [dir="ltr"] .main-content {
+                margin: 0 !important; /* override RTL/LTR margins on mobile */
+            }
+
+            /* Sidebar covers full width on phones */
+            .sidebar {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* Slightly tighter content padding on mobile */
+            .content { padding: 1rem !important; }
+        }
     </style>
 </head>
 
-<body x-data="dashboard()" x-init="init()">
+<body x-data="dashboard()" x-init="init()" x-effect="document.body.style.overflow = (window.innerWidth <= 768 && sidebarOpen) ? 'hidden' : ''">
 
 
     <!-- Sidebar -->
@@ -1021,9 +1032,6 @@
             <!-- Emails -->
             <a class="nav-item" :class="{ 'active': currentView === 'email' }" @click="setView('email')">
                 <i class="fas fa-envelope"></i>
-        <!-- Backdrop for mobile when sidebar is open -->
-        <div x-show="sidebarOpen && isMobile()" class="mobile-backdrop" @click="sidebarOpen = false"></div>
-
                 <span x-text="translations[currentLanguage].nav.email"></span>
             </a>
 
@@ -1042,6 +1050,9 @@
     </div>
 
     <!-- Main Content -->
+        <!-- Backdrop for mobile when sidebar is open -->
+        <div x-show="sidebarOpen && isMobile()" x-transition.opacity class="mobile-backdrop" @click="sidebarOpen = false"></div>
+
     <div class="main-content" :class="{ 'expanded': !sidebarOpen }">
         <!-- Header -->
         <header class="header">
@@ -3041,7 +3052,7 @@ function dashboard() {
         },
 
         // UI State
-        sidebarOpen: true,
+        sidebarOpen: false,
         currentView: 'dashboard',
         isDark: false,
         maskPII: true,
@@ -5206,6 +5217,8 @@ function dashboard() {
             this.detectCostColumns();
             this.setStatus('تم إعادة تعيين إعدادات التكلفة', 'info');
         },
+
+        isMobile() { return window.matchMedia && window.matchMedia('(max-width: 768px)').matches; },
 
         formatCurrency(amount) {
             // Always use Western Arabic numerals (0-9) regardless of UI language
